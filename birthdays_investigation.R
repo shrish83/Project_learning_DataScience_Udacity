@@ -27,5 +27,6 @@ tapply(max_month$Freq,max_month$Var1,sum)
 
 # Which day of the year has the most number of birthdays?
 days<-as.numeric(as.vector(birthday_df1$day))
+library(plyr) #for count()
 df_days<-as.data.frame(count(days))
 df_days[df_days$freq ==max(df_days$freq),]
