@@ -55,6 +55,10 @@ qplot(x=carat,data = diamonds, geom = "freqpoly",color=I("green"))+scale_x_conti
 ##tidyr - reshapes layout of data
 ##dplyr - transform tidy tabular data
 
+
+##********************************************************************************************************************************
+
+
 ##LESSON 6
 ggplot(data = diamonds, aes(x=x,y=price)) +
   geom_point()
@@ -158,3 +162,94 @@ bar_clarity <- ggplot(data = diamonds_mp_by_clarity, aes(x=clarity,y=mean_price)
   geom_bar(stat = "identity")
 library(gridExtra)
 grid.arrange(bar_color,bar_clarity,ncol=1)
+
+
+##*********************************************************************************************************************88
+
+
+##LESSON 8 - PROBLEM SET
+# Create a histogram of diamond prices.
+# Facet the histogram by diamond color
+# and use cut to color the histogram bars.
+#The diamonds data set is actually part of the excellent ggplot2 package
+library(ggplot2)
+data(diamonds)
+
+qplot(data = diamonds, x = log(price)) +
+  facet_wrap(~color) + aes(fill = cut) + scale_x_log10()
+
+# Create a scatterplot of diamond price vs.
+# table and color the points by the cut of
+# the diamond.
+ggplot(data = diamonds, aes(x=table, y=price))+
+  geom_point(aes(color=cut))
+
+#table range for diamonds of the ideal and premium cut
+by(diamonds$table,diamonds$cut,range)
+
+# Create a scatterplot of diamond price vs.
+# volume (x * y * z) and color the points by
+# the clarity of diamonds. Use scale on the y-axis
+# to take the log10 of price. You should also
+# omit the top 1% of diamond volumes from the plot.
+volume <- diamonds$x * diamonds$y * diamonds$z
+diamonds$volume <- volume
+ggplot(data = diamonds, aes(x=volume,y=price)) +
+  geom_point(aes(color=clarity)) +
+  xlim(0, quantile(diamonds$volume,0.99)) +
+  scale_y_log10() 
+  
+
+# Many interesting variables are derived from two or more others.
+# For example, we might wonder how much of a person's network on
+# a service like Facebook the user actively initiated. Two users
+# with the same degree (or number of friends) might be very
+# different if one initiated most of those connections on the
+# service, while the other initiated very few. So it could be
+# useful to consider this proportion of existing friendships that
+# the user initiated. This might be a good predictor of how active
+# a user is compared with their peers, or other traits, such as
+# personality (i.e., is this person an extrovert?).
+########
+# Your task is to create a new variable called 'prop_initiated'
+# in the Pseudo-Facebook data set. The variable should contain
+# the proportion of friendships that the user initiated.
+
+fb_df<-read.table("C:/Users/Swapnil Kumar Vaish/Documents/R/DataScience/Udacity_/pseudo_facebook.tsv", header = T)
+fb_df$prop_initiated = fb_df$friendships_initiated / fb_df$friend_count
+fb_df$prop_initiated[is.nan(fb_df$prop_initiated)] <- 0
+
+
+# Create a line graph of the median proportion of
+# friendships initiated ('prop_initiated') vs.
+# tenure and color the line segment by
+# year_joined.bucket.
+
+fb_df$year_joined <- floor(2014 - (fb_df$tenure/365)) 
+fb_df$year_joined.bucket <- cut(fb_df$year_joined, c(2004, 2009, 2011, 2012, 2014))
+ggplot(data = fb_df, aes(x=tenure, y= prop_initiated)) +
+  geom_line(aes(color=year_joined.bucket),stat = "summary", fun.y=median)
+
+
+# Smooth the last plot you created of
+# of prop_initiated vs tenure colored by
+# year_joined.bucket. You can bin together ranges
+# of tenure or add a smoother to the plot.
+
+ggplot(data = fb_df, aes(x=tenure, y= prop_initiated)) +
+  geom_line(aes(color=year_joined.bucket),stat = "summary", fun.y=median) +
+  geom_smooth()
+
+##which group initiated greatest proportions of facebook friendships
+by(fb_df$prop_initiated, fb_df$year_joined.bucket, summary)
+
+
+# Create a scatter plot of the price/carat ratio
+# of diamonds. The variable x should be
+# assigned to cut. The points should be colored
+# by diamond color, and the plot should be
+# faceted by clarity.
+ggplot(data = diamonds, aes(x=cut, y=price/carat))+
+  geom_jitter(aes(color = color)) +
+  facet_wrap(~clarity)
+  
